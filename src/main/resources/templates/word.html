@@ -72,7 +72,7 @@
         }
 
         body {
-            font-family: 思源黑体 Normal,serif;
+            font-family: 思源黑体 Normal, serif;
         }
     </style>
 </head>
@@ -138,8 +138,6 @@
                     <th:block th:if="${request.modelAttr}">
                         <tbody th:include="this::request(${request.modelAttr.properties},${c.count} + '.', 1)"/>
                     </th:block>
-
-
                 </th:block>
 
                 <tr class="bg">
@@ -183,29 +181,25 @@
 <th:block th:fragment="request(properties,count, lv)">
     <th:block th:each="p,c : ${properties}">
         <tr>
-            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}"
-                th:style="|padding-left:${10*lv}px|"></td>
+            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}" th:style="|padding-left:${10*lv}px|"></td>
             <td th:text="${p.type}"></td>
             <td></td>
             <td th:if="${p.require}" th:text="Y"></td>
             <td th:if="${!p.require}" th:text="N"></td>
             <td th:text="${p.description}"></td>
         </tr>
-        <th:block th:unless="${#lists.isEmpty(p.properties)}"
-                  th:include="this::request(${p.properties},${count} + '' + ${c.count} + '.',${lv+1})"/>
+        <th:block th:unless="${#lists.isEmpty(p.properties)}" th:include="this::request(${p.properties},${count} + '' + ${c.count} + '.',${lv+1})"/>
     </th:block>
 </th:block>
 
 <th:block th:fragment="response(properties,count, lv)">
     <th:block th:each="p,c : ${properties}">
         <tr>
-            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}"
-                th:style="|padding-left:${10*lv}px|"></td>
+            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}" th:style="|padding-left:${10*lv}px|"></td>
             <td colspan="2" th:text="${p.type}"></td>
             <td colspan="2" th:text="${p.description}"></td>
         </tr>
-        <th:block th:unless="${#lists.isEmpty(p.properties)}"
-                  th:include="this::response(${p.properties},${count} + '' + ${c.count} + '.',${lv+1})"/>
+        <th:block th:unless="${#lists.isEmpty(p.properties)}" th:include="this::response(${p.properties},${count} + '' + ${c.count} + '.',${lv+1})"/>
     </th:block>
 </th:block>
 </body>
