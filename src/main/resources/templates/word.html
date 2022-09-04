@@ -72,16 +72,27 @@
         }
 
         body {
-            font-family: 思源黑体 Normal, serif;
+            font-family: 思源黑体 Normal;
         }
     </style>
+    <script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/FileSaver.js"></script>
+    <script type="text/javascript" src="/js/jquery.wordexport.js"></script>
+    <script>
+        $(function () {
+            $('#download_btn_jq').click(function () {
+                $('body').wordExport('filename');
+            })
+        })
+    </script>
 </head>
 
 <body>
 <div style="width:1000px; margin: 0 auto">
     <div>
         <p class="doc_title" th:text="${info.title +'（'+ info.version +'）'}"></p>
-        <a class="download_btn" th:if="${download == 1}" th:href="${'/fetch-word-use-url?url='+ url}">下载文档</a>
+        <a class="download_btn" th:if="${showDownload == 1}" th:href="${'/fetch-word-use-url?url='+ url}">下载文档</a>
+        <button class="download_btn_jq" onclick="$('body').wordExport('filename')">下载文档2</button>
         <br>
     </div>
     <div th:each="tableMap:${tableMap}" style="margin-bottom:20px;">

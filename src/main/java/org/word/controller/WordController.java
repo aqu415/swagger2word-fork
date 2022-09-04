@@ -49,8 +49,8 @@ public class WordController {
     @GetMapping(value = "/word-page")
     public String toWordPage(Model model,
                              @ApiParam(value = "资源地址") @RequestParam(value = "url", required = false) String url,
-                             @ApiParam(value = "是否下载") @RequestParam(value = "download", required = false, defaultValue = "1") Integer download) {
-        generateModelData(model, url, download);
+                             @ApiParam(value = "是否下载") @RequestParam(value = "showDownload", required = false, defaultValue = "1") Integer showDownload) {
+        generateModelData(model, url, showDownload);
         return ConstantUtil.WORD;
     }
 
@@ -105,22 +105,22 @@ public class WordController {
     private void generateModelData(Model model, String url, Integer download) {
         url = StringUtils.defaultIfBlank(url, this.properties.getUrl());
         Map<String, Object> result = this.tableService.tableList(url);
-        model.addAttribute("url", url);
-        model.addAttribute("download", download);
+        model.addAttribute(ConstantUtil.URL, url);
+        model.addAttribute(ConstantUtil.SHOW_DOWNLOAD, download);
         model.addAllAttributes(result);
     }
 
     private void generateModelData(Model model, String jsonStr) {
         Map<String, Object> result = this.tableService.tableListFromString(jsonStr);
-        model.addAttribute("url", "http://");
-        model.addAttribute("download", 0);
+        model.addAttribute(ConstantUtil.URL, ConstantUtil.HTTP_HEAD);
+        model.addAttribute(ConstantUtil.SHOW_DOWNLOAD, 0);
         model.addAllAttributes(result);
     }
 
     private void generateModelData(Model model, MultipartFile jsonFile) {
         Map<String, Object> result = this.tableService.tableList(jsonFile);
-        model.addAttribute("url", "http://");
-        model.addAttribute("download", 0);
+        model.addAttribute(ConstantUtil.URL, ConstantUtil.HTTP_HEAD);
+        model.addAttribute(ConstantUtil.SHOW_DOWNLOAD, 0);
         model.addAllAttributes(result);
     }
 
