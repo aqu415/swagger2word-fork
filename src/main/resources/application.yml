@@ -21,9 +21,11 @@ spring:
       enabled: true
       max-file-size: 50MB
       max-request-size: 50MB
-# Swagger json url address
-# etc. https://petstore.swagger.io/
-swagger.url: https://petstore.swagger.io/v2/swagger.json
+
+# Swagger json url default address
+swagger:
+  custom:
+    url: http://localhost:10086/v2/api-docs
 
 
 
