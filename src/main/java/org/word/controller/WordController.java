@@ -3,18 +3,15 @@ package org.word.controller;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.word.config.SwaggerCustomProperties;
 import org.word.service.WordService;
+import org.word.utils.ConstantUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +19,6 @@ import javax.validation.Valid;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -42,8 +38,6 @@ public class WordController {
     @Resource
     private SpringTemplateEngine springTemplateEngine;
 
-    private String fileName = "toWord";
-
     /**
      * 将 swagger 文档转换成 html 文档，可通过在网页上右键另存为 xxx.doc 的方式转换为 word 文档
      *
@@ -52,24 +46,12 @@ public class WordController {
      * @return
      */
     @ApiResponses(value = {@ApiResponse(code = 200, message = "请求成功。", response = String.class)})
-    @RequestMapping(value = "/toWordPage", method = {RequestMethod.GET})
+    @GetMapping(value = "/word-page")
     public String toWordPage(Model model,
-                             @ApiParam(value = "资源地址", required = false) @RequestParam(value = "url", required = false) String url,
-                             @ApiParam(value = "是否下载", required = false) @RequestParam(value = "download", required = false, defaultValue = "1") Integer download) {
+                             @ApiParam(value = "资源地址") @RequestParam(value = "url", required = false) String url,
+                             @ApiParam(value = "是否下载") @RequestParam(value = "download", required = false, defaultValue = "1") Integer download) {
         generateModelData(model, url, download);
-
-        // Is there a localized template available ?
-        Locale currentLocale = Locale.getDefault();
-        String localizedTemplate = "word-" + currentLocale.getLanguage() + "_" + currentLocale.getCountry();
-        String fileName = "/templates/" + localizedTemplate + ".html";
-
-        if (getClass().getResourceAsStream(fileName) != null) {
-            log.info(fileName + " resource found");
-            return localizedTemplate;
-        } else {
-            log.info(fileName + " resource not found, using default");
-        }
-        return "word";
+        return ConstantUtil.WORD;
     }
 
 
@@ -82,8 +64,8 @@ public class WordController {
      */
     @ApiOperation(value = "将 swagger 文档一键下载为 doc 文档", notes = "", tags = {"Word"})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "请求成功。")})
-    @RequestMapping(value = "/downloadWordUseUrl", method = {RequestMethod.GET})
-    public void downloadWordUseUrl(Model model, @ApiParam(value = "资源地址", required = false) @RequestParam(required = false) String url, HttpServletResponse response) {
+    @GetMapping(value = "/fetch-word-use-url")
+    public void downloadWordUseUrl(Model model, @ApiParam(value = "资源地址") @RequestParam(required = false) String url, HttpServletResponse response) {
         generateModelData(model, url, 0);
         writeContentToResponse(model, response);
     }
@@ -98,7 +80,7 @@ public class WordController {
      */
     @ApiOperation(value = "将 swagger json文件转换成 word文档并下载", notes = "", tags = {"Word"})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "请求成功。")})
-    @RequestMapping(value = "/downloadWordUseFile", method = {RequestMethod.POST})
+    @PostMapping(value = "/fetch-word-use-file")
     public void downloadWordUseFile(Model model, @ApiParam("swagger json file") @Valid @RequestPart("jsonFile") MultipartFile jsonFile, HttpServletResponse response) {
         generateModelData(model, jsonFile);
         writeContentToResponse(model, response);
@@ -114,54 +96,48 @@ public class WordController {
      */
     @ApiOperation(value = "将 swagger json字符串转换成 word文档并下载", notes = "", tags = {"Word"})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "请求成功。")})
-    @RequestMapping(value = "/downloadWordUseStr", method = {RequestMethod.POST})
+    @PostMapping(value = "/fetch-word-use-str")
     public void downloadWordUseStr(Model model, @ApiParam("swagger json string") @Valid @RequestParam("jsonStr") String jsonStr, HttpServletResponse response) {
         generateModelData(model, jsonStr);
         writeContentToResponse(model, response);
     }
 
     private void generateModelData(Model model, String url, Integer download) {
-        url = StringUtils.defaultIfBlank(url, properties.getUrl());
-        Map<String, Object> result = tableService.tableList(url);
+        url = StringUtils.defaultIfBlank(url, this.properties.getUrl());
+        Map<String, Object> result = this.tableService.tableList(url);
         model.addAttribute("url", url);
         model.addAttribute("download", download);
         model.addAllAttributes(result);
     }
 
-    private void writeContentToResponse(Model model, HttpServletResponse response) {
-        Context context = new Context();
-        context.setVariables(model.asMap());
-        String content = springTemplateEngine.process("word", context);
-        response.setContentType("application/octet-stream;charset=utf-8");
-        response.setCharacterEncoding("utf-8");
-        try (BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
-            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileName + ".doc", "utf-8"));
-            byte[] bytes = content.getBytes();
-            bos.write(bytes, 0, bytes.length);
-            bos.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void generateModelData(Model model, String jsonStr) {
-        Map<String, Object> result = tableService.tableListFromString(jsonStr);
+        Map<String, Object> result = this.tableService.tableListFromString(jsonStr);
         model.addAttribute("url", "http://");
         model.addAttribute("download", 0);
         model.addAllAttributes(result);
     }
 
     private void generateModelData(Model model, MultipartFile jsonFile) {
-        Map<String, Object> result = tableService.tableList(jsonFile);
-        fileName = jsonFile.getOriginalFilename();
-
-        if (fileName != null) {
-            fileName = fileName.replaceAll(".json", "");
-        } else {
-            fileName = "toWord";
-        }
+        Map<String, Object> result = this.tableService.tableList(jsonFile);
         model.addAttribute("url", "http://");
         model.addAttribute("download", 0);
         model.addAllAttributes(result);
+    }
+
+    private void writeContentToResponse(Model model, HttpServletResponse response) {
+        Context context = new Context();
+        context.setVariables(model.asMap());
+        String content = this.springTemplateEngine.process(ConstantUtil.WORD, context);
+        response.setContentType("application/octet-stream;charset=utf-8");
+        response.setCharacterEncoding("utf-8");
+        try (BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream())) {
+            response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(System.currentTimeMillis() + ".doc", "utf-8"));
+            byte[] bytes = content.getBytes();
+            bos.write(bytes, 0, bytes.length);
+            bos.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("writeContentToResponse exception:{}", e.getLocalizedMessage(), e);
+        }
     }
 }
