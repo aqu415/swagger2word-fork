@@ -62,7 +62,7 @@ if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
             mhtmlBottom += "--NEXT.ITEM-BOUNDARY--";
 
             //TODO: load css from included stylesheet
-            var styles = "";
+            var styles = `.bg{font-size:14.5px;font-weight:bold;color:#000;background-color:#559e68;}table{border-width:1px;border-style:solid;border-color:black;table-layout:fixed;}tr{height:32px;font-size:12px;}td{padding-left:10px;border-width:1px;border-style:solid;border-color:black;height:32px;overflow:hidden;word-break:break-all;word-wrap:break-word;font-size:14.5px;}.bg td{font-size:14.5px;}tr td{font-size:14.5px;}.specialHeight{height:40px;}.first_title{height:60px;line-height:60px;margin:0;font-weight:bold;font-size:21px;}.second_title{height:40px;line-height:40px;margin:0;font-size:18.5px;}.doc_title{font-size:42.5px;text-align:center;}.download_btn{float:right;}body{font-family:思源黑体 Normal;}`;
 
             // Aggregate parts of the file together
             var fileContent = static.mhtml.top.replace("_html_", static.mhtml.head.replace("_styles_", styles) + static.mhtml.body.replace("_body_", markup.html())) + mhtmlBottom;

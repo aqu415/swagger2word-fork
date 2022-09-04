@@ -3,7 +3,6 @@ package org.word.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
@@ -15,6 +14,7 @@ import org.word.model.Table;
 import org.word.service.WordService;
 import org.word.utils.JsonUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -29,14 +29,14 @@ import java.util.stream.Collectors;
 @Service
 public class WordServiceImpl implements WordService {
 
-    @Autowired
+    @Resource
     private RestTemplate restTemplate;
 
     @Override
     public Map<String, Object> tableList(String swaggerUrl) {
         Map<String, Object> resultMap = new HashMap<>();
         try {
-            String jsonStr = restTemplate.getForObject(swaggerUrl, String.class);
+            String jsonStr = this.restTemplate.getForObject(swaggerUrl, String.class);
             resultMap = tableListFromString(jsonStr);
             log.debug(JsonUtils.writeJsonStr(resultMap));
         } catch (Exception e) {
@@ -563,23 +563,23 @@ public class WordServiceImpl implements WordService {
                 }
             }
         }
-        String res = "";
+        StringBuilder res = new StringBuilder();
         if (!queryMap.isEmpty()) {
-            res += getUrlParamsByMap(queryMap);
+            res.append(getUrlParamsByMap(queryMap));
         }
         if (!headerMap.isEmpty()) {
-            res += " " + getHeaderByMap(headerMap);
+            res.append(" ").append(getHeaderByMap(headerMap));
         }
         if (!jsonMap.isEmpty()) {
             if (jsonMap.size() == 1) {
                 for (Entry<String, Object> entry : jsonMap.entrySet()) {
-                    res += " -d '" + JsonUtils.writeJsonStr(entry.getValue()) + "'";
+                    res.append(JsonUtils.writeJsonStr(entry.getValue()));
                 }
             } else {
-                res += " -d '" + JsonUtils.writeJsonStr(jsonMap) + "'";
+                res.append(JsonUtils.writeJsonStr(jsonMap));
             }
         }
-        return res;
+        return res.toString();
     }
 
     /**
@@ -620,6 +620,7 @@ public class WordServiceImpl implements WordService {
                 list.add(map);
                 return list;
             case "object":
+            case "body":
                 map = new LinkedHashMap<>();
                 if (modelAttr != null && !CollectionUtils.isEmpty(modelAttr.getProperties())) {
                     for (ModelAttr subModelAttr : modelAttr.getProperties()) {
