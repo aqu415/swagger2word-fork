@@ -200,7 +200,7 @@
 <th:block th:fragment="request(properties,count, lv)">
     <th:block th:each="p,c : ${properties}">
         <tr>
-            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}" th:style="|padding-left:${10*lv}px|"></td>
+            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}" th:style="|padding-left:${15*lv}px|"></td>
             <td th:text="${p.type}"></td>
             <td></td>
             <td th:if="${p.require}" th:text="Y"></td>
@@ -214,7 +214,7 @@
 <th:block th:fragment="response(properties,count, lv)">
     <th:block th:each="p,c : ${properties}">
         <tr>
-            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}" th:style="|padding-left:${10*lv}px|"></td>
+            <td align="left" th:text="${count} + '' + ${c.count} + '.' + ${p.name}" th:style="|padding-left:${15*lv}px|"></td>
             <td colspan="2" th:text="${p.type}"></td>
             <td colspan="2" th:text="${p.description}"></td>
         </tr>
